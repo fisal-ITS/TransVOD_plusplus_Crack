@@ -81,7 +81,7 @@ class DeformableTransformer(nn.Module):
         self.temporal_query_layer2 = TemporalQueryEncoderLayer(d_model, dim_feedforward, dropout, activation, nhead)
         self.temporal_query_layer3 = TemporalQueryEncoderLayer(d_model, dim_feedforward, dropout, activation, nhead)
         
-        num_classes = 31
+        num_classes = 2
 
         # QRF Module
         self.dynamic_layer_for_current_query1 = RCNNHead(self.cfg, d_model, num_classes, dim_feedforward, nhead, dropout, activation)
