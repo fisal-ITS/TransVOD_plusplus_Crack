@@ -453,7 +453,7 @@ class MLP(nn.Module):
 
 
 def build(args):
-    num_classes = 31
+    num_classes = 2
     device = torch.device(args.device)
 
     if 'swin' in args.backbone:
