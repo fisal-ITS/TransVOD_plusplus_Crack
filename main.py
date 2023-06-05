@@ -20,6 +20,7 @@ import torch
 from torch.utils.data import DataLoader
 import datasets
 
+from torch.utils.tensorboard import SummaryWriter
 import datasets.samplers as samplers
 from datasets import build_dataset, get_coco_api_from_dataset
 from models import build_model
@@ -168,7 +169,7 @@ def main(args):
     n_parameters = sum(p.numel() for p in model.parameters() if p.requires_grad)
     print('number of params:', n_parameters)
 
-    dataset_train = build_dataset(image_set='train_joint', args=args)
+    dataset_train = build_dataset(image_set='custom', args=args)
     dataset_val = build_dataset(image_set='val', args=args)
 
     if args.distributed:
@@ -202,8 +203,8 @@ def main(args):
                 break
         return out
 
-    for n, p in model_without_ddp.named_parameters():
-        print(n)
+#     for n, p in model_without_ddp.named_parameters():
+#         print(n)
 
     param_dicts = [
         {
@@ -291,11 +292,14 @@ def main(args):
 
     print("Start training")
     start_time = time.time()
+    writer = SummaryWriter('/content/tensorboard/')
     for epoch in range(args.start_epoch, args.epochs):
         if args.distributed:
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(
             model, criterion, data_loader_train, optimizer, device, epoch, args.clip_max_norm)
+        loss = train_stats['loss']
+        writer.add_scalar("Training Loss", loss, epoch)
         lr_scheduler.step()
         print('args.output_dir', args.output_dir)
         if args.output_dir:
@@ -316,7 +320,7 @@ def main(args):
         #test_stats, coco_evaluator = evaluate(
          #   model, criterion, postprocessors, data_loader_val, base_ds, device, args.output_dir
         #)
-
+        writer.flush()
         log_stats = {**{f'train_{k}': v for k, v in train_stats.items()},
                      'epoch': epoch,
                      'n_parameters': n_parameters}
