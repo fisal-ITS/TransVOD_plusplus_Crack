@@ -110,7 +110,7 @@ class CocoVID(COCO):
             list[int]: Image ids of given video id.
         """
         img_infos = self.vidToImgs[vidId]
-        ids = list(np.zeros([len(img_infos)], dtype=np.int))
+        ids = list(np.zeros([len(img_infos)], dtype=int))
 
         for i, img_info in enumerate(img_infos):
             ids[i] = img_info["id"]
